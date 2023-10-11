@@ -1,8 +1,13 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-function Task() {
+function Task({state}) {
+
+    
+
     return (
-        <div></div>
+        <div>
+            <p>Oh la belle tache</p>
+        </div>
     )
 }
 
