@@ -80,10 +80,9 @@ function Home({state}) {
                                     </div>
                         <div className="card-body">
                             <h5 className='card-title'>{cat[x.categorie - 1].label}</h5>
-                        {x.status === 0 ? <p className="card-text p-1 mb-2 bg-success text-white">En cours</p> : x.status === 2 ? <p className="card-text p-1 mb-2 bg-light text-dark" >En attente</p> 
-                        : null}
-                        {x.priority === 0 ? <p className="card-text" style={{backgroundColor: "yellow"}}>Basse</p> : x.priority === 1 ? <p className="card-text p-1 mb-2 bg-warning text-dark">Moyenne</p> 
-                        : <p className="card-text p-1 mb-2 bg-danger text-white" style={{backgroundColor: "red"}}>Haute</p>}
+                            {x.priorite === 3 ? <p className="card-text p-1 mb-2 bg-danger text-white">{priorite[x.priorite - 1].label}</p>
+                            : <p className="card-text p-1 mb-2 bg-success text-white">{priorite[x.priorite - 1].label}</p> }
+                        <h5 className='card-title'>{status[x.status - 1].label}</h5>
                         <button onClick={() => displayMyTask(x)} className="btn btn-primary">Ouvrir la tâche</button>
                         
                         </div>
@@ -143,7 +142,7 @@ function Home({state}) {
                         </li>)}
                        
                     </ul>
-                    <button className="p-2 mb-3 btn btn-primary" type="submit" value="modifier">modifier</button>
+                    <button className="p-2 mb-3 btn btn-primary" type="submit" value="modifier">Modifier</button>
                 </div>
                 </form>
         )
