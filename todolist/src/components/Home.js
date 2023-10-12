@@ -1,20 +1,45 @@
 import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.css';
-import Task from "./Task";
 
 function Home({state}) {
 
-    const urlUser = "http//localhost:3001/users";
-    const urlTasks = "http://localhost:3001/dashboard";
-    
-    
+    const [cat, setCat] = useState([]);
+    const [priorite, setPriorite] = useState([]);
+    const [status, setStatus] = useState([]);
+    const [users, setUsers] = useState([]);
     const [dashboard, setDashboard] = useState([]);
- 
+    const [display, setDisplay] = useState(true);
     const [myTask, setMyTask] = useState({
-        name: "", description: "", categorie: "", status: "", dateCrea: "",
+        value: null, label: "", description: "", categorie: "", status: "", dateCrea: "", dateMax: "",
         dateUpdate: "", userCrea: "", usersAffected: []
     })
-    const [display, setDisplay] = useState(true);
+
+    const urlCategories = "http://localhost:3001/categories";
+    const urlPriorites = "http://localhost:3001/priorites";
+    const urlStatus = "http://localhost:3001/status";
+    const urlUsers = "http://localhost:3001/users";
+    const urlTasks = "http://localhost:3001/dashboard";
+
+    const categories = async () => {
+        const response = await fetch(urlCategories).then((response) => response.json());
+        setCat(response);
+    }
+
+    const priorites = async () => {
+        const response = await fetch(urlPriorites).then((response) => response.json());
+        setPriorite(response);
+    }
+
+
+    const statuss = async () => {
+        const response = await fetch(urlStatus).then((response) => response.json());
+        setStatus(response);
+    }
+
+    const userss = async () => {
+        const response = await fetch(urlUsers).then((response) => response.json());
+        setUsers(response);
+    }
 
     const tasks = async () => {
         const response = await fetch(urlTasks).then((response) => response.json());
@@ -22,15 +47,18 @@ function Home({state}) {
     }
 
     useEffect(() => {
+        statuss();
+        categories();
+        priorites();
+        userss();
         tasks();
       }, []);
 
-
     function displayMyTask(task){
         setMyTask({
-            name: task.name, description: task.description, categorie: task.categorie,
-            status: task.status, dateCrea: task.dateCreation, dateUpdate: task.dateUpdate,
-            userCrea: task.userCrea, usersAffected: task.usersAffected
+            value: task.value, label: task.label, description: task.description, categorie: cat[task.categorie - 1].label,
+            status: status[task.status - 1].label, priorite: priorite[task.priorite - 1].label, dateCrea: task.dateCrea, dateUpdate: task.dateUpdate,
+            userCrea: task.userCrea, usersAffected: task.usersAffected, dateMax: task.dateMax
             
         });
         setDisplay(false);
@@ -38,26 +66,25 @@ function Home({state}) {
     }
 
     if (display) {
-    if (state.isLogged == true) {
+    if (state.isLogged === true) {
         return (
             <div className='home'>
                 <div className='row'>
                     
-                    {dashboard.map((i) => (
+                    {dashboard.map((x) => (
                         <div className="col-sm-6 mb-3 mb-sm-0">
-                            { i.status === 1 ? null  : 
-                                <div className="card" style={{width: "18rem"}}> 
+                            { x.status === 3 ? null  : 
+                                <div className="card" style={{width: "20rem"}}> 
                                     <div className="card-header">
-                                        {i.name}
+                                        {x.label}
                                     </div>
                         <div className="card-body">
-                            <h5 className='card-title'>{i.description}</h5>
-                            <h5 className='card-title'>{i.categorie}</h5>
-                        {i.status === 0 ? <p className="card-text p-1 mb-2 bg-success text-white">En cours</p> : i.status === 2 ? <p className="card-text p-1 mb-2 bg-light text-dark" >En attente</p> 
+                            <h5 className='card-title'>{cat[x.categorie - 1].label}</h5>
+                        {x.status === 0 ? <p className="card-text p-1 mb-2 bg-success text-white">En cours</p> : x.status === 2 ? <p className="card-text p-1 mb-2 bg-light text-dark" >En attente</p> 
                         : null}
-                        {i.priority === 0 ? <p className="card-text" style={{backgroundColor: "yellow"}}>Basse</p> : i.priority === 1 ? <p className="card-text p-1 mb-2 bg-warning text-dark">Moyenne</p> 
+                        {x.priority === 0 ? <p className="card-text" style={{backgroundColor: "yellow"}}>Basse</p> : x.priority === 1 ? <p className="card-text p-1 mb-2 bg-warning text-dark">Moyenne</p> 
                         : <p className="card-text p-1 mb-2 bg-danger text-white" style={{backgroundColor: "red"}}>Haute</p>}
-                        <button onClick={() => displayMyTask(i)} className="btn btn-primary">Ouvrir la tâche</button>
+                        <button onClick={() => displayMyTask(x)} className="btn btn-primary">Ouvrir la tâche</button>
                         
                         </div>
                         
@@ -72,34 +99,53 @@ function Home({state}) {
         )
     } else {
         return(
-        <div>
-            <h1>Bienvenu sur la To Do List</h1>
-            <h2>Veuillez vous connectez pour accéder aux fonctionnalités</h2>
+            <div>
+            <div className="login">
+                <h2 className="form-group p-2 mb-3">Se connecter</h2>
+                <form action="http://localhost:3001/login" method="post">
+                <div className="form-group p-2 mb-3">
+                    <input className="p-2 mb-3" type="text" name="email" placeholder="Email de l'utilisateur"></input>
+                </div>   
+                <div className="form-group p-2 mb-3">
+                    <input className="p-2 mb-3" type="password" name="password" placeholder="Password de l'utilisateur"></input>
+                </div> 
+                    <button className="p-2 mb-3 btn btn-primary" type="submit" value="Login">Se connecter</button>
+                </form>
+            </div>
         </div>
         )
     }
     } else {
+        console.log(myTask)
         return(
-            <div>
-                <div className="card" style={{width: "18rem"}}> 
-                                    <div className="card-header">
-                                        {myTask.name}
-                                    </div>
-                <div className="card-body">
-                            <h5 className='card-title'>{myTask.description}</h5>
-                            <h5 className='card-title'>{myTask.categorie}</h5>
-                        {myTask.status === 0 ? <p className="card-text p-1 mb-2 bg-success text-white">En cours</p> : myTask.status === 2 ? <p className="card-text p-1 mb-2 bg-light text-dark" >En attente</p> 
-                        : null}
-                        {myTask.priority === 0 ? <p className="card-text" style={{backgroundColor: "yellow"}}>Basse</p> : myTask.priority === 1 ? <p className="card-text p-1 mb-2 bg-warning text-dark">Moyenne</p> 
-                        : <p className="card-text p-1 mb-2 bg-danger text-white" style={{backgroundColor: "red"}}>Haute</p>}
+            <form action="http://localhost:3001/modify-task" method="post">
+            <div className="card" style={{width: "18rem"}}> 
+                    <div className="card-body">
+                        <h5 className="card-title">{myTask.label}</h5>
+                        <p className="list-group-item">{myTask.value}</p>
+                        <p className="card-text">{myTask.description}</p>
+                        {/* <input className="p-2 mb-3" type="text" name="description" placeholder="Nouvelle description"></input> */}
+                    </div>
+                    <ul className="list-group list-group-flush">
+                        <li className="list-group-item">{myTask.status}
+                        </li>
+                        <li className="list-group-item">{myTask.priorite}
+                        </li>
+                        <li className="list-group-item">{myTask.categorie}
+                        </li>
+                        <li className="list-group-item">{myTask.dateCrea} </li>
+                        <li className="list-group-item">{myTask.dateMax} </li>
+                        <li className="list-group-item">{myTask.dateUpdate}</li>
+                        <li className="list-group-item">Propriétaire : {myTask.userCrea}</li>
                         
-                        
-                        <p>Date de création : {myTask.dateCrea}</p> 
-                        <p>Date Maximum de traitement : {myTask.dateMaximum}</p>     
-                        <p>Date de dernière mise à jour :{myTask.dateUpdate}</p>               
-                        </div>
-            </div>
-            </div>
+                        <li className="list-group-item">Utilisateurs affectés</li>
+                        {myTask.usersAffected.map((y) =>  <li className="list-group-item">{users[y - 1].label}
+                        </li>)}
+                       
+                    </ul>
+                    <button className="p-2 mb-3 btn btn-primary" type="submit" value="modifier">modifier</button>
+                </div>
+                </form>
         )
     }
     

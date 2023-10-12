@@ -4,8 +4,6 @@ function CreatePriorite({state}) {
 
     if (state.isLogged) {
 
-
-
     return (
         <div>
             <div className="create-priorite">

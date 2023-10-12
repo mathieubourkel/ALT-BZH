@@ -1,10 +1,22 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import 'bootstrap/dist/css/bootstrap.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 
 function Nav({state}) {
 
-    if (state.isLogged == true) {
+    // const urlUsers = "http//localhost:3001/users";
+    // const [users, setUsers] = useState([]);
+
+    // const userss = async () => {
+    //     const response = await fetch(urlUsers).then((response) => response.json());
+    //     setUsers(response);
+    // }
+
+    // useEffect(() => {
+    //     // userss();
+    //   }, []);
+
+    if (state.isLogged === true) {
         return (
             <nav className="navbar navbar-dark navbar-expand-lg bg-primary">
                 <div className="container-fluid">
@@ -35,7 +47,8 @@ function Nav({state}) {
                             
                             {state.isLogged ? 
                             <button className="btn btn-primary" type="submit" value="Create User">Log Out</button>
-                            : <li className='nav-item'><a href="login" className="nav-link tewt-white">Se connecter</a></li>
+                             :  null 
+                            //<li className='nav-item'><a href="login" className="nav-link tewt-white">Se connecter</a></li>
                             }
                         </ul>
                     </div>
@@ -54,9 +67,6 @@ function Nav({state}) {
                         <span className="navbar-toggler-icon"></span>
                     </button>
                     <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul className="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li className='nav-item'><a href="login" className="nav-link">Se connecter</a></li>
-                        </ul>
                     </div>
                 </div>
             </nav>

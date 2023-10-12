@@ -7,11 +7,14 @@ const app = express();
 const cors = require("cors");
 require('dotenv').config();
 const bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken');
 const URL = "http://localhost:3000";
 
 // CONNEXION à MONGOOSE
 
 const MONGODBURL = process.env.MONGODBURL;
+const ACCESS_TOKEN_SECRET = process.env.ACCESS_TOKEN_SECRET;
+const REFRESH_TOKEN_SECRET = process.env.REFRESH_TOKEN_SECRET;
 
 mongoose.connect(MONGODBURL,
   { useNewUrlParser: true,
@@ -22,8 +25,8 @@ mongoose.connect(MONGODBURL,
 // SCHEMAS
 
 const usersSchema = new mongoose.Schema({
-  id: Number,
-  name: {
+  value: Number,
+  label: {
     type: String,
     unique: true,
     required: true,
@@ -36,35 +39,38 @@ const usersSchema = new mongoose.Schema({
   email: {
     type: String,
     required: true
+  },
+  isAdmin: {
+    type: Boolean
   }
 });
 
 const categoriesSchema = new mongoose.Schema({
-  name: String,
-  id: Number
+  label: String,
+  value: Number
 });
 
 const statusSchema = new mongoose.Schema({
-  name: String,
-  id: Number
+  label: String,
+  value: Number
 });
 
 const prioritesSchema = new mongoose.Schema({
-  name: String,
-  id: Number
+  label: String,
+  value: Number
 });
 
 const tasksSchema = new mongoose.Schema({
-    id: Number,
-    name: String,
+    label: String,
+    value: Number,
     description: String,
-    categorie: categoriesSchema,
-    status: statusSchema,
-    priority: Number,
-    userWhoCreate: usersSchema,
-    usersAffected: [usersSchema],
-    dateMaximum: Date,
-    dateCreation: Date,
+    categorie: Number,
+    status: Number,
+    priorite: Number,
+    userCrea: String,
+    usersAffected: [Number],
+    dateMax: Date,
+    dateCrea: Date,
     dateUpdate: Date
 });
 
@@ -85,7 +91,7 @@ app.use(cors());
 
 app.post("/create-user", async (req, resp) => {
 
-  const { name, password, email } = req.body
+  const { label, password, email, isAdmin } = req.body
   const allUsers = await Users.find({});
   if (password.length < 6 ){
     return resp.status(400).json({message : "Veuillez entrer un mot de passe de + 6 charactères"})
@@ -95,12 +101,22 @@ app.post("/create-user", async (req, resp) => {
   let crypt = await bcrypt.hash(password, 10);
 
   try {
-      await Users.create({
-        id: (await allUsers).length + 1,
-        name,
-        password: crypt,
-        email,
-      })
+      if (isAdmin) {
+        await Users.create({
+          value: (await allUsers).length + 1,
+          label,
+          password: crypt,
+          email,
+          isAdmin: isAdmin     
+        })} else {
+          await Users.create({
+            value: (await allUsers).length + 1,
+            label,
+            password: crypt,
+            email,
+            isAdmin: false
+        })
+      }  
       resp.redirect(URL);
   } catch (err) {
     resp.status(401).json({
@@ -160,9 +176,7 @@ app.get("/categories", async (req, resp) => {
   }
 });
 
-app.get('*', function (req, res) {
-  res.redirect(URL);
-});
+
 
 app.get("/priorites", async (req, resp) => {
   const allPriorites = await Priorites.find({});
@@ -173,35 +187,33 @@ app.get("/priorites", async (req, resp) => {
   }
 });
 
-
-app.post("/create-task", async (req, resp) => {
-  const allTasks = await Tasks.find({});
+app.get("/users", async (req, resp) => {
+  const allUsers = await Users.find({});
   try {
-    const task = new Tasks({
-      id: allTasks.length + 1,
-      name: req.body.name,
-      description: req.body.description,
-      categorie: req.body.categorie,
-      status: req.body.status,
-      priority: req.body.priority,
-      dateMaximum: req.body.dateMax,
-      dateCreation: Date.now()
-  })
-  await task.save();
-  resp.redirect(URL);
-
-  } catch (e) {
-      resp.send("Probleme lors de la création de la tâche");
+    resp.send(allUsers);
+  } catch (error) {
+    resp.status(500).send(error);
   }
-  
 });
+
+app.get("/status", async (req, resp) => {
+  const allStatus = await Status.find({});
+  try {
+    resp.send(allStatus);
+  } catch (error) {
+    resp.status(500).send(error);
+  }
+});
+
+
+
 
 app.post("/create-categorie", async (req, resp) => {
   const allCategories = Categories.find({});
   try {
     const categorie = new Categories({
-      name: req.body.name,
-      id: (await allCategories).length + 1
+      label: req.body.name,
+      value: (await allCategories).length + 1
   })
 
   await categorie.save();
@@ -217,8 +229,8 @@ app.post("/create-priorite", async (req, resp) => {
   const allPriorites = Priorites.find({});
   try {
     const priorite = new Priorites({
-      name: req.body.name,
-      id: (await allPriorites).length + 1
+      label: req.body.name,
+      value: (await allPriorites).length + 1
   })
 
   await priorite.save();
@@ -234,8 +246,8 @@ app.post("/create-status", async (req, resp) => {
   const allStatus = Status.find({});
   try {
     const statut = new Status({
-      name: req.body.name,
-      id: (await allStatus).length + 1
+      label: req.body.name,
+      value: (await allStatus).length + 1
   })
 
   await statut.save();
@@ -246,6 +258,54 @@ app.post("/create-status", async (req, resp) => {
       resp.send("Probleme lors de la création du statut");
   }
   
+});
+
+app
+
+app.post("/create-task", async (req, resp) => {
+  const allTasks = await Tasks.find({});
+  try {
+    await Tasks.create({
+      value: (await allTasks).length + 1,
+      label: req.body.name,
+      description: req.body.description,
+      categorie: req.body.categorie,
+      status: req.body.status,
+      priorite: req.body.priorite,
+      dateMax: req.body.dateMax,
+      userCrea: req.body.userCrea,
+      usersAffected: req.body.users,
+      dateCrea: Date.now()
+    })
+    resp.redirect(URL);
+} catch (err) {
+  resp.status(401).json({
+    message: "L'utilisateur n'a pas été créé",
+    error: err.message
+  })
+}
+});
+
+app.post("/modify-task", async (req, resp) => {
+  const {value} = req.body;
+  try {
+      Tasks.findOneAndUpdateupdate({value}, {
+      label: req.body.name,
+      description: req.body.description,
+      categorie: req.body.categorie,
+      status: req.body.status,
+      priorite: req.body.priorite})
+    resp.redirect(URL);
+} catch (err) {
+  resp.status(401).json({
+    message: "pas réussi a modifier",
+    error: err.message
+  })
+}
+});
+
+app.get('*', function (req, res) {
+  res.redirect(URL);
 });
   
 app.listen(PORT, () => {
