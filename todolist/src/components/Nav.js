@@ -1,22 +1,15 @@
-import React, { useEffect, useState } from "react";
-import 'bootstrap/dist/css/bootstrap.css';
 import Dropdown from 'react-bootstrap/Dropdown';
 
-function Nav({state}) {
+function Nav({state, setState}) {
 
-    // const urlUsers = "http//localhost:3001/users";
-    // const [users, setUsers] = useState([]);
-
-    // const userss = async () => {
-    //     const response = await fetch(urlUsers).then((response) => response.json());
-    //     setUsers(response);
-    // }
-
-    // useEffect(() => {
-    //     // userss();
-    //   }, []);
+    function logout(){
+        if(state.isLogged){
+            setState({isLogged: false})     
+        }   
+    }
 
     if (state.isLogged === true) {
+
         return (
             <nav className="navbar navbar-dark navbar-expand-lg bg-primary">
                 <div className="container-fluid">
@@ -46,14 +39,15 @@ function Nav({state}) {
                             : null }
                             
                             {state.isLogged ? 
-                            <button className="btn btn-primary" type="submit" value="Create User">Log Out</button>
+                            <button onClick={() => logout()} className="btn btn-primary" type="submit" value="Create User">Log Out</button>
                              :  null 
-                            //<li className='nav-item'><a href="login" className="nav-link tewt-white">Se connecter</a></li>
                             }
                         </ul>
                     </div>
                     <div>
-                        <p>{state.name}<br/> {state.email}</p>
+                        <p className='text-white'>{state.name}</p>
+                        <p className='text-white'>{state.email}</p>
+                        <p className='text-white'>Connecté</p>
                     </div>
                 </div>
             </nav>

@@ -1,4 +1,5 @@
 import React from "react";
+import {URL} from './Home';
 
 function CreateCategorie({state}) {
 
@@ -8,7 +9,7 @@ function CreateCategorie({state}) {
         <div>
             <div className="create-categorie">
                 <h2 className="form-group p-2 mb-3">Créer une catégorie</h2>
-                <form action="http://localhost:3001/create-categorie" method="post">
+                <form action={URL + "/create-categorie"} method="post">
                 <div className="form-group p-2 mb-3">
                     <input className="p-2 mb-3" type="text" name="name" placeholder="Nom de la catégorie"></input>
                 </div>

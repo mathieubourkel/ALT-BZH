@@ -1,14 +1,15 @@
 import React from "react";
+import {URL} from './Home';
 
 function CreateUser({state}) {
 
-    if (state.isAdmin == true) {
+    if (state.isAdmin === true) {
 
         return (
-            <div>
+            <div className='d-flex justify-content-center'>
                 <div className="create-user">
                     <h2 className="form-group p-2 mb-3">Créer un utilisateur</h2>
-                    <form action="http://localhost:3001/create-user" method="post">
+                    <form action={URL + "/create-user"} method="post">
                     <div className="form-group p-2 mb-3">
                         <input className="p-2 mb-3" type="text" name="label" placeholder="Nom de l'utilisateur"></input>
                     </div>

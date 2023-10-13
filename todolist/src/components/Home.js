@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import 'bootstrap/dist/css/bootstrap.css';
+export const URL = "http://localhost:3001";
 
 function Home({state}) {
 
@@ -9,49 +9,44 @@ function Home({state}) {
     const [users, setUsers] = useState([]);
     const [dashboard, setDashboard] = useState([]);
     const [display, setDisplay] = useState(true);
+    const [displayTerm, setDisplayTerm] = useState(false);
     const [myTask, setMyTask] = useState({
         value: null, label: "", description: "", categorie: "", status: "", dateCrea: "", dateMax: "",
         dateUpdate: "", userCrea: "", usersAffected: []
     })
 
-    const urlCategories = "http://localhost:3001/categories";
-    const urlPriorites = "http://localhost:3001/priorites";
-    const urlStatus = "http://localhost:3001/status";
-    const urlUsers = "http://localhost:3001/users";
-    const urlTasks = "http://localhost:3001/dashboard";
-
-    const categories = async () => {
-        const response = await fetch(urlCategories).then((response) => response.json());
+    const funCat = async () => {
+        const response = await fetch(URL + "/categories").then((response) => response.json());
         setCat(response);
     }
 
-    const priorites = async () => {
-        const response = await fetch(urlPriorites).then((response) => response.json());
+    const funPriorites = async () => {
+        const response = await fetch(URL + "/priorites").then((response) => response.json());
         setPriorite(response);
     }
 
 
-    const statuss = async () => {
-        const response = await fetch(urlStatus).then((response) => response.json());
+    const funStatus = async () => {
+        const response = await fetch(URL + "/status").then((response) => response.json());
         setStatus(response);
     }
 
-    const userss = async () => {
-        const response = await fetch(urlUsers).then((response) => response.json());
+    const funUsers = async () => {
+        const response = await fetch(URL + "/users").then((response) => response.json());
         setUsers(response);
     }
 
-    const tasks = async () => {
-        const response = await fetch(urlTasks).then((response) => response.json());
+    const funTasks = async () => {
+        const response = await fetch(URL + "/dashboard").then((response) => response.json());
         setDashboard(response);
     }
 
     useEffect(() => {
-        statuss();
-        categories();
-        priorites();
-        userss();
-        tasks();
+        funStatus();
+        funCat();
+        funPriorites();
+        funUsers();
+        funTasks();
       }, []);
 
     function displayMyTask(task){
@@ -65,84 +60,91 @@ function Home({state}) {
         
     }
 
+    function funcDisplayTerm(){
+        !displayTerm ? setDisplayTerm(true) : setDisplayTerm(false)
+    }
+
+    
     if (display) {
-    if (state.isLogged === true) {
-        return (
-            <div className='home'>
-                <div className='row'>
-                    
-                    {dashboard.map((x) => (
-                        <div className="col-sm-6 mb-3 mb-sm-0">
-                            { x.status === 3 ? null  : 
-                                <div className="card" style={{width: "20rem"}}> 
-                                    <div className="card-header">
-                                        {x.label}
-                                    </div>
+        if (state.isLogged === true) {
+            return (
+                <body className='container'>
+                <div className='home row d-flex justify-content-beetween'>
+                {displayTerm ? 
+                    <div className='button-display p-3 mb-2'>
+                        <button onClick={() => funcDisplayTerm()} className="btn btn-primary">Masquer tâches terminées</button>
+                    </div> 
+                :   <div className='button-display p-3 mb-2'>
+                        <button onClick={() => funcDisplayTerm()} className="btn btn-primary">Afficher tâches terminées</button>
+                    </div>
+                    }
+                
+                {dashboard.map((x) => {
+                    if (x.status === 3 && !displayTerm) {
+                        return null
+                    } else {
+                    return <div className="card m-2 col-sm-6 mb-3 mb-sm-0" style={{width: "20rem"}}>
+                        <div className="card-header">{x.label}</div>
                         <div className="card-body">
                             <h5 className='card-title'>{cat[x.categorie - 1].label}</h5>
                             {x.priorite === 3 ? <p className="card-text p-1 mb-2 bg-danger text-white">{priorite[x.priorite - 1].label}</p>
                             : <p className="card-text p-1 mb-2 bg-success text-white">{priorite[x.priorite - 1].label}</p> }
-                        <h5 className='card-title'>{status[x.status - 1].label}</h5>
-                        <button onClick={() => displayMyTask(x)} className="btn btn-primary">Ouvrir la tâche</button>
-                        
-                        </div>
-                        
-                    </div>}
-                        
-                        </div>
-                        
-                        ))}
-                    
+                            <h5 className='card-title'>{status[x.status - 1].label}</h5>
+                            <button onClick={() => displayMyTask(x)} className="btn btn-primary">Ouvrir la tâche</button>
+                        </div>    
+                    </div> }}                  
+                    )}
+                    </div> 
+                    </body>
+                )
+                
+        } else {
+            return(
+                <div className="login">
+                    <h2 className="form-group p-2 mb-3">Se connecter</h2>
+                    <form action={URL + "/login"} method="post">
+                    <div className="form-group p-2 mb-3">
+                        <input className="p-2 mb-3" type="text" name="email" placeholder="Email de l'utilisateur"></input>
+                    </div>   
+                    <div className="form-group p-2 mb-3">
+                        <input className="p-2 mb-3" type="password" name="password" placeholder="Password de l'utilisateur"></input>
+                    </div> 
+                        <button className="p-2 mb-3 btn btn-primary" type="submit" value="Login">Se connecter</button>
+                    </form>
                 </div>
-            </div>
-        )
+            )
+        }
     } else {
+
         return(
-            <div>
-            <div className="login">
-                <h2 className="form-group p-2 mb-3">Se connecter</h2>
-                <form action="http://localhost:3001/login" method="post">
-                <div className="form-group p-2 mb-3">
-                    <input className="p-2 mb-3" type="text" name="email" placeholder="Email de l'utilisateur"></input>
-                </div>   
-                <div className="form-group p-2 mb-3">
-                    <input className="p-2 mb-3" type="password" name="password" placeholder="Password de l'utilisateur"></input>
-                </div> 
-                    <button className="p-2 mb-3 btn btn-primary" type="submit" value="Login">Se connecter</button>
-                </form>
-            </div>
-        </div>
-        )
-    }
-    } else {
-        console.log(myTask)
-        return(
-            <form action="http://localhost:3001/modify-task" method="post">
-            <div className="card" style={{width: "18rem"}}> 
+            <form action={URL + "/modify-task"} method="post">
+            <div className='d-flex justify-content-center m-2'>
+            <div className="card" style={{width: "50rem"}}> 
                     <div className="card-body">
+                        <h5 className="list-group-item">ID: {myTask.value}</h5>
                         <h5 className="card-title">{myTask.label}</h5>
-                        <p className="list-group-item">{myTask.value}</p>
                         <p className="card-text">{myTask.description}</p>
-                        {/* <input className="p-2 mb-3" type="text" name="description" placeholder="Nouvelle description"></input> */}
                     </div>
                     <ul className="list-group list-group-flush">
-                        <li className="list-group-item">{myTask.status}
+                        <li className="list-group-item">Status : {myTask.status}
                         </li>
-                        <li className="list-group-item">{myTask.priorite}
+                        <li className="list-group-item">Priorité : {myTask.priorite}
                         </li>
-                        <li className="list-group-item">{myTask.categorie}
+                        <li className="list-group-item">Catégorie : {myTask.categorie}
                         </li>
-                        <li className="list-group-item">{myTask.dateCrea} </li>
-                        <li className="list-group-item">{myTask.dateMax} </li>
-                        <li className="list-group-item">{myTask.dateUpdate}</li>
+                        <li className="list-group-item">Date de création : {myTask.dateCrea} </li>
+                        <li className="list-group-item">Date maximum : {myTask.dateMax} </li>
+                        <li className="list-group-item">Dernière update : {myTask.dateUpdate}</li>
                         <li className="list-group-item">Propriétaire : {myTask.userCrea}</li>
                         
-                        <li className="list-group-item">Utilisateurs affectés</li>
-                        {myTask.usersAffected.map((y) =>  <li className="list-group-item">{users[y - 1].label}
-                        </li>)}
+                        <li className="list-group-item">Utilisateurs affectés : {myTask.usersAffected.map((y) =>  
+                            <p>{users[y - 1].label} </p>)}
+                        </li>
+                        
                        
                     </ul>
                     <button className="p-2 mb-3 btn btn-primary" type="submit" value="modifier">Modifier</button>
+                </div>
                 </div>
                 </form>
         )

@@ -83,7 +83,7 @@ const Tasks = mongoose.model("Tasks", tasksSchema);
 const Users = mongoose.model("Users", usersSchema);
 
 
-// GET POST
+// POST
 
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false}));
@@ -158,55 +158,6 @@ app.post("/login", async (req, res) => {
 
 });
 
-app.get("/dashboard", async (req, resp) => {
-  const allTasks = await Tasks.find({});
-  try {
-    resp.send(allTasks);
-  } catch (error) {
-    resp.status(500).send(error);
-  }
-});
-
-app.get("/categories", async (req, resp) => {
-  const allCategories = await Categories.find({});
-  try {
-    resp.send(allCategories);
-  } catch (error) {
-    resp.status(500).send(error);
-  }
-});
-
-
-
-app.get("/priorites", async (req, resp) => {
-  const allPriorites = await Priorites.find({});
-  try {
-    resp.send(allPriorites);
-  } catch (error) {
-    resp.status(500).send(error);
-  }
-});
-
-app.get("/users", async (req, resp) => {
-  const allUsers = await Users.find({});
-  try {
-    resp.send(allUsers);
-  } catch (error) {
-    resp.status(500).send(error);
-  }
-});
-
-app.get("/status", async (req, resp) => {
-  const allStatus = await Status.find({});
-  try {
-    resp.send(allStatus);
-  } catch (error) {
-    resp.status(500).send(error);
-  }
-});
-
-
-
 
 app.post("/create-categorie", async (req, resp) => {
   const allCategories = Categories.find({});
@@ -251,7 +202,6 @@ app.post("/create-status", async (req, resp) => {
   })
 
   await statut.save();
- //resp.send("Le statut a été crée avec succès")
   resp.redirect(URL);
 
   } catch (e) {
@@ -304,12 +254,65 @@ app.post("/modify-task", async (req, resp) => {
 }
 });
 
+// GET 
+
+app.get("/dashboard", async (req, resp) => {
+  const allTasks = await Tasks.find({});
+  try {
+    resp.send(allTasks);
+  } catch (error) {
+    resp.status(500).send(error);
+  }
+});
+
+app.get("/categories", async (req, resp) => {
+  const allCategories = await Categories.find({});
+  try {
+    resp.send(allCategories);
+  } catch (error) {
+    resp.status(500).send(error);
+  }
+});
+
+app.get("/priorites", async (req, resp) => {
+  const allPriorites = await Priorites.find({});
+  try {
+    resp.send(allPriorites);
+  } catch (error) {
+    resp.status(500).send(error);
+  }
+});
+
+app.get("/users", async (req, resp) => {
+  const allUsers = await Users.find({});
+  try {
+    resp.send(allUsers);
+  } catch (error) {
+    resp.status(500).send(error);
+  }
+});
+
+app.get("/status", async (req, resp) => {
+  const allStatus = await Status.find({});
+  try {
+    resp.send(allStatus);
+  } catch (error) {
+    resp.status(500).send(error);
+  }
+});
+
 app.get('*', function (req, res) {
   res.redirect(URL);
 });
+
+
+// PORT
   
 app.listen(PORT, () => {
     console.log(`Server listening on ${PORT}`);
   });
+
+
+// EXPORT
 
 module.exports = Users, Tasks, Categories, Status, Priorites;

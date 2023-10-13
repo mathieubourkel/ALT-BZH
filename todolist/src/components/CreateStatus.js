@@ -1,4 +1,5 @@
 import React from "react";
+import {URL} from './Home';
 
 function CreateStatus({state}) {
 
@@ -6,9 +7,9 @@ function CreateStatus({state}) {
 
     return (
         <div>
-            <div className="create-user">
+            <div className="create-status">
                 <h2 className="form-group p-2 mb-3">Créer un Status</h2>
-                <form action="http://localhost:3001/create-status" method="post">
+                <form action={URL + "/create-status"} method="post">
                 <div className="form-group p-2 mb-3">
                     <input className="p-2 mb-3" type="text" name="name" placeholder="Nom du status"></input>
                 </div>

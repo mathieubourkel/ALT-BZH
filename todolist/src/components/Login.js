@@ -1,13 +1,13 @@
 import React from "react";
+import {URL} from './Home';
 
-function Login() {
+function Login(state, setState) {
 
-    
     return (
         <div>
             <div className="login">
                 <h2 className="form-group p-2 mb-3">Se connecter</h2>
-                <form action="http://localhost:3001/login" method="post">
+                <form action={URL + "/login"} method="post">
                 <div className="form-group p-2 mb-3">
                     <input className="p-2 mb-3" type="text" name="email" placeholder="Email de l'utilisateur"></input>
                 </div>   
